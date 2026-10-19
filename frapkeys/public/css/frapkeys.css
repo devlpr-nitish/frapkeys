@@ -1,0 +1,46 @@
+.frapkeys-navbar-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	margin-right: var(--margin-xs);
+	padding: var(--padding-xs);
+	color: var(--text-muted);
+	border-radius: var(--border-radius-sm);
+}
+
+.frapkeys-navbar-button:hover,
+.frapkeys-navbar-button:focus-visible {
+	color: var(--text-color);
+	background: var(--fg-hover-color);
+}
+
+.frapkeys-shortcut-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--margin-sm);
+}
+
+.frapkeys-shortcut-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--margin-md);
+	padding: var(--padding-sm);
+	border: 1px solid var(--border-color);
+	border-radius: var(--border-radius-md);
+}
+
+.frapkeys-shortcut-copy {
+	min-width: 0;
+}
+
+.frapkeys-shortcut-row kbd {
+	white-space: nowrap;
+}
+
+.frapkeys-loading,
+.frapkeys-empty-state {
+	padding: var(--padding-lg) var(--padding-sm);
+	text-align: center;
+}

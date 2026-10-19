@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "creation": "2026-10-19 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "enabled",
+  "show_navbar_icon",
+  "open_shortcut_dialog_key",
+  "active_preset",
+  "warn_on_browser_conflicts"
+ ],
+ "fields": [
+  {
+   "default": "1",
+   "description": "Enable Frapkeys in Desk.",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "label": "Enabled"
+  },
+  {
+   "default": "1",
+   "description": "Show the keyboard icon beside the Desk search bar.",
+   "fieldname": "show_navbar_icon",
+   "fieldtype": "Check",
+   "label": "Show Navbar Icon"
+  },
+  {
+   "default": "ctrl+shift+/",
+   "description": "Reserved for opening the shortcut dialog when keyboard registration is enabled.",
+   "fieldname": "open_shortcut_dialog_key",
+   "fieldtype": "Data",
+   "label": "Open Shortcut Dialog Key"
+  },
+  {
+   "default": "None",
+   "fieldname": "active_preset",
+   "fieldtype": "Select",
+   "label": "Active Preset",
+   "options": "None\nFrappe Defaults\nTally Inspired",
+   "read_only": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "warn_on_browser_conflicts",
+   "fieldtype": "Check",
+   "label": "Warn on Browser Conflicts"
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-10-19 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frapkeys",
+ "name": "Frapkeys Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

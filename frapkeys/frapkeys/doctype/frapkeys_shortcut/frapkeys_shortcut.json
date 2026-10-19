@@ -1,0 +1,189 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:shortcut_name",
+ "creation": "2026-10-19 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "shortcut_name",
+  "enabled",
+  "key_combination",
+  "description",
+  "action_section",
+  "action_type",
+  "target_doctype",
+  "target_route",
+  "target_report",
+  "document_action",
+  "scope_section",
+  "scope",
+  "scope_doctype",
+  "allowed_roles",
+  "behavior_section",
+  "ignore_when_typing",
+  "priority",
+  "is_standard_preset",
+  "preset_key"
+ ],
+ "fields": [
+  {
+   "fieldname": "shortcut_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Shortcut Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "default": "1",
+   "fieldname": "enabled",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Enabled"
+  },
+  {
+   "description": "Example: ctrl+shift+p or f8",
+   "fieldname": "key_combination",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Key Combination",
+   "reqd": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "action_section",
+   "fieldtype": "Section Break",
+   "label": "Action"
+  },
+  {
+   "fieldname": "action_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Action Type",
+   "options": "Open Internal Route\nOpen DocType List\nCreate Document\nOpen Report\nRun Document Action\nFocus Global Search\nGo Home\nOpen Frapkeys Modal",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.action_type=='Open DocType List' || doc.action_type=='Create Document'",
+   "fieldname": "target_doctype",
+   "fieldtype": "Link",
+   "label": "Target DocType",
+   "options": "DocType"
+  },
+  {
+   "depends_on": "eval:doc.action_type=='Open Internal Route'",
+   "description": "Internal Desk route only, for example /app/sales-invoice.",
+   "fieldname": "target_route",
+   "fieldtype": "Data",
+   "label": "Target Route"
+  },
+  {
+   "depends_on": "eval:doc.action_type=='Open Report'",
+   "fieldname": "target_report",
+   "fieldtype": "Link",
+   "label": "Target Report",
+   "options": "Report"
+  },
+  {
+   "depends_on": "eval:doc.action_type=='Run Document Action'",
+   "fieldname": "document_action",
+   "fieldtype": "Select",
+   "label": "Document Action",
+   "options": "Save\nSubmit\nCancel\nPrint\nDuplicate"
+  },
+  {
+   "fieldname": "scope_section",
+   "fieldtype": "Section Break",
+   "label": "Availability"
+  },
+  {
+   "default": "Global",
+   "fieldname": "scope",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Scope",
+   "options": "Global\nForm\nList\nReport\nWorkspace",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.scope=='Form' || doc.scope=='List' || doc.scope=='Report'",
+   "fieldname": "scope_doctype",
+   "fieldtype": "Link",
+   "label": "Scope DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "allowed_roles",
+   "fieldtype": "Table",
+   "label": "Allowed Roles",
+   "options": "Frapkeys Shortcut Role"
+  },
+  {
+   "fieldname": "behavior_section",
+   "fieldtype": "Section Break",
+   "label": "Behavior"
+  },
+  {
+   "default": "0",
+   "description": "Keep disabled unless this action is safe while a user is entering text.",
+   "fieldname": "ignore_when_typing",
+   "fieldtype": "Check",
+   "label": "Allow While Typing"
+  },
+  {
+   "default": "0",
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Priority"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_standard_preset",
+   "fieldtype": "Check",
+   "label": "Standard Preset",
+   "read_only": 1
+  },
+  {
+   "depends_on": "is_standard_preset",
+   "fieldname": "preset_key",
+   "fieldtype": "Data",
+   "label": "Preset Key",
+   "read_only": 1,
+   "unique": 1
+  }
+ ],
+ "index_web_pages_for_search": 0,
+ "links": [],
+ "modified": "2026-10-19 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Frapkeys",
+ "name": "Frapkeys Shortcut",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "search_fields": "shortcut_name,key_combination,description",
+ "sort_field": "priority",
+ "sort_order": "DESC",
+ "states": [],
+ "title_field": "shortcut_name",
+ "track_changes": 1
+}
