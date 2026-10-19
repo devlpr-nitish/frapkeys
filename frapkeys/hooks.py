@@ -1,7 +1,9 @@
 app_name = "frapkeys"
 app_title = "Frapkeys"
 app_publisher = "Nitish"
-app_description = "lets Desk users discover and use keyboard shortcuts for common Frappe and ERPNext operations."
+app_description = (
+	"Lets Desk users discover and use keyboard shortcuts for common Frappe and ERPNext operations."
+)
 app_email = "devlprnitish@gmail.com"
 app_license = "mit"
 
@@ -25,8 +27,8 @@ app_license = "mit"
 # ------------------
 
 # include js, css files in header of desk.html
-app_include_css = "/assets/frapkeys/css/frapkeys.css"
-app_include_js = "/assets/frapkeys/js/frapkeys.js"
+app_include_css = "frapkeys.bundle.css"
+app_include_js = "frapkeys.bundle.js"
 
 # include js, css files in header of web template
 # web_include_css = "/assets/frapkeys/css/frapkeys.css"

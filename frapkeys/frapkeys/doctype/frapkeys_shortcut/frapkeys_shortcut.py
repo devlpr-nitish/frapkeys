@@ -4,14 +4,39 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 
-
-MODIFIER_ORDER = ("ctrl", "alt", "shift")
+MODIFIER_ORDER = (
+	"ctrl",
+	"left_ctrl",
+	"right_ctrl",
+	"left_cmd",
+	"right_cmd",
+	"alt",
+	"left_alt",
+	"right_alt",
+	"shift",
+	"left_shift",
+	"right_shift",
+)
 KEY_ALIASES = {
 	"control": "ctrl",
 	"command": "ctrl",
 	"cmd": "ctrl",
 	"meta": "ctrl",
 	"option": "alt",
+	"control_left": "left_ctrl",
+	"control_right": "right_ctrl",
+	"command_left": "left_cmd",
+	"command_right": "right_cmd",
+	"option_left": "left_alt",
+	"option_right": "right_alt",
+	"ctrl_left": "left_ctrl",
+	"ctrl_right": "right_ctrl",
+	"cmd_left": "left_cmd",
+	"cmd_right": "right_cmd",
+	"alt_left": "left_alt",
+	"alt_right": "right_alt",
+	"shift_left": "left_shift",
+	"shift_right": "right_shift",
 	"escape": "esc",
 	"return": "enter",
 }
@@ -62,7 +87,9 @@ def normalize_key_combination(value):
 	keys = [part for part in parts if part not in MODIFIER_ORDER]
 
 	if len(keys) != 1 or len(parts) != len(modifiers) + 1:
-		frappe.throw(_("Enter one key with optional Ctrl, Alt, and Shift modifiers."))
+		frappe.throw(
+			_("Enter one key with optional Ctrl, Command, Alt, and Shift modifiers.")
+		)
 
 	key = keys[0]
 	valid_key = (

@@ -8,6 +8,7 @@
  "field_order": [
   "shortcut_name",
   "enabled",
+  "key_recorder",
   "key_combination",
   "description",
   "action_section",
@@ -44,7 +45,12 @@
    "label": "Enabled"
   },
   {
-   "description": "Example: ctrl+shift+p or f8",
+   "fieldname": "key_recorder",
+   "fieldtype": "HTML",
+   "label": "Shortcut Recorder"
+  },
+  {
+   "description": "Generic modifiers accept either side. Side-specific examples: left_cmd+right_alt+7, right_ctrl+left_shift+k, or f8.",
    "fieldname": "key_combination",
    "fieldtype": "Data",
    "in_list_view": 1,
