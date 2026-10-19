@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse
 
 import frappe
 from frappe import _
@@ -56,12 +57,18 @@ VALID_NAMED_KEYS = {
 	"tab",
 	"up",
 }
+MODIFIER_FAMILIES = {
+	"ctrl": {"ctrl", "left_ctrl", "right_ctrl", "left_cmd", "right_cmd"},
+	"alt": {"alt", "left_alt", "right_alt"},
+	"shift": {"shift", "left_shift", "right_shift"},
+}
 
 
 class FrapkeysShortcut(Document):
 	def validate(self):
 		self.key_combination = normalize_key_combination(self.key_combination)
 		self.validate_action_target()
+		self.validate_key_conflict()
 
 	def validate_action_target(self):
 		if self.action_type in {"Open DocType List", "Create Document"} and not self.target_doctype:
@@ -69,6 +76,9 @@ class FrapkeysShortcut(Document):
 
 		if self.action_type == "Open Internal Route" and not self.target_route:
 			frappe.throw(_("Target Route is required for Open Internal Route."))
+
+		if self.action_type == "Open External Link":
+			self.validate_external_url()
 
 		if self.action_type == "Open Report" and not self.target_report:
 			frappe.throw(_("Target Report is required for Open Report."))
@@ -78,6 +88,26 @@ class FrapkeysShortcut(Document):
 
 		if self.scope in {"Form", "List", "Report"} and not self.scope_doctype:
 			frappe.throw(_("Scope DocType is required for {0} scope.").format(self.scope))
+
+	def validate_external_url(self):
+		self.external_url = normalize_external_url(self.external_url)
+
+	def validate_key_conflict(self):
+		if not self.enabled:
+			return
+
+		for shortcut in frappe.get_all(
+			"Frapkeys Shortcut",
+			filters={"enabled": 1, "name": ["!=", self.name or ""]},
+			fields=["name", "shortcut_name", "key_combination"],
+		):
+			if key_combinations_overlap(self.key_combination, shortcut.key_combination):
+				frappe.throw(
+					_("Key combination overlaps with enabled shortcut {0} ({1}).").format(
+						frappe.bold(shortcut.shortcut_name),
+						shortcut.key_combination,
+					)
+				)
 
 
 def normalize_key_combination(value):
@@ -102,3 +132,35 @@ def normalize_key_combination(value):
 		frappe.throw(_("Unsupported shortcut key: {0}").format(key))
 
 	return "+".join([modifier for modifier in MODIFIER_ORDER if modifier in modifiers] + [key])
+
+
+def normalize_external_url(value):
+	value = (value or "").strip()
+	parsed_url = urlparse(value)
+	if parsed_url.scheme.lower() not in {"http", "https"} or not parsed_url.netloc:
+		frappe.throw(_("Enter a complete external URL beginning with http:// or https://."))
+	return value
+
+
+def key_combinations_overlap(first, second):
+	"""Return whether two combinations can be triggered by the same physical keys."""
+	first_parts = set(normalize_key_combination(first).split("+"))
+	second_parts = set(normalize_key_combination(second).split("+"))
+	first_key = next((part for part in first_parts if part not in MODIFIER_ORDER), None)
+	second_key = next((part for part in second_parts if part not in MODIFIER_ORDER), None)
+	if not first_key or first_key != second_key:
+		return False
+
+	for generic, family in MODIFIER_FAMILIES.items():
+		first_required = first_parts.intersection(family)
+		second_required = second_parts.intersection(family)
+		if not first_required and not second_required:
+			continue
+		if not first_required or not second_required:
+			return False
+		if generic in first_required or generic in second_required:
+			continue
+		if first_required != second_required:
+			return False
+
+	return True

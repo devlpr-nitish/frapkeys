@@ -32,6 +32,7 @@ def get_shortcuts():
 			"action_type",
 			"target_doctype",
 			"target_route",
+			"external_url",
 			"target_report",
 			"document_action",
 			"scope",
@@ -41,26 +42,42 @@ def get_shortcuts():
 		],
 		order_by="priority desc, shortcut_name asc",
 	)
-	if not shortcuts:
-		return response
-
-	role_rows = frappe.get_all(
-		"Frapkeys Shortcut Role",
-		filters={
-			"parent": ["in", [shortcut.name for shortcut in shortcuts]],
-			"parenttype": "Frapkeys Shortcut",
-		},
-		fields=["parent", "role"],
-	)
+	role_rows = []
+	if shortcuts:
+		role_rows = frappe.get_all(
+			"Frapkeys Shortcut Role",
+			filters={
+				"parent": ["in", [shortcut.name for shortcut in shortcuts]],
+				"parenttype": "Frapkeys Shortcut",
+			},
+			fields=["parent", "role"],
+		)
 	roles_by_shortcut = {}
 	for row in role_rows:
 		roles_by_shortcut.setdefault(row.parent, set()).add(row.role)
 
 	user_roles = set(frappe.get_roles())
-	response["shortcuts"] = [
+	visible_shortcuts = [
 		shortcut
 		for shortcut in shortcuts
 		if not roles_by_shortcut.get(shortcut.name)
 		or roles_by_shortcut[shortcut.name].intersection(user_roles)
+	]
+	response["shortcuts"] = [
+		frappe._dict(
+			{
+				"name": "__frapkeys_open_modal",
+				"shortcut_name": _("Open Keyboard Shortcuts"),
+				"key_combination": settings.open_shortcut_dialog_key
+				or "left_ctrl+left_shift+k",
+				"description": _("Open the Frapkeys shortcut browser."),
+				"action_type": "Open Frapkeys Modal",
+				"scope": "Global",
+				"ignore_when_typing": 1,
+				"priority": 1000,
+				"is_settings_shortcut": 1,
+			}
+		),
+		*visible_shortcuts,
 	]
 	return response

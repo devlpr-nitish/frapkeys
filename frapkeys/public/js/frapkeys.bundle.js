@@ -3,6 +3,56 @@ import FrapkeysWidget from "./frapkeys/FrapkeysWidget.vue";
 import ShortcutRecorder from "./frapkeys/ShortcutRecorder.vue";
 
 if (window.frappe?.ui?.form?.on) {
+	window.frappe.ui.form.on("Frapkeys Settings", {
+		active_preset(frm) {
+			const preset = frm.__frapkeysPresets?.find((item) => item.name === frm.doc.active_preset);
+			if (!preset) return;
+			frm.set_df_property(
+				"active_preset",
+				"description",
+				`${preset.description} ${preset.shortcut_count} code-backed shortcuts. Save to apply.`
+			);
+		},
+		refresh(frm) {
+			window.frappe.call({
+				method: "frapkeys.api.presets.get_presets",
+				callback(response) {
+					frm.__frapkeysPresets = response.message || [];
+					const options = frm.__frapkeysPresets.map((preset) => preset.name);
+					if (options.length) frm.set_df_property("active_preset", "options", options.join("\n"));
+					frm.trigger("active_preset");
+				},
+			});
+
+			if (frm.doc.active_preset && frm.doc.active_preset !== "None") {
+				frm.add_custom_button(
+					"Restore Active Preset",
+					() => {
+						window.frappe.call({
+							method: "frapkeys.api.presets.restore_preset",
+							type: "POST",
+							freeze: true,
+							freeze_message: "Restoring shortcut preset…",
+							callback(response) {
+								const result = response.message || {};
+								window.dispatchEvent(new CustomEvent("frapkeys:refresh"));
+								window.frappe.show_alert({
+									message: `${result.preset || "Preset"}: ${result.active || 0} shortcuts restored`,
+									indicator: "green",
+								});
+								frm.reload_doc();
+							},
+						});
+					},
+					"Presets"
+				);
+			}
+		},
+		after_save() {
+			window.dispatchEvent(new CustomEvent("frapkeys:refresh"));
+		},
+	});
+
 	window.frappe.ui.form.on("Frapkeys Shortcut", {
 		refresh(frm) {
 			const wrapper = frm.fields_dict.key_recorder?.$wrapper?.get(0);
@@ -143,6 +193,16 @@ if (window.frappe?.ui?.form?.on) {
 			case "Open Internal Route": {
 				const route = String(shortcut.target_route || "").replace(/^\/app\/?/, "");
 				if (route) window.frappe.set_route(route);
+				break;
+			}
+			case "Open External Link": {
+				try {
+					const url = new URL(shortcut.external_url);
+					if (!["http:", "https:"].includes(url.protocol)) return;
+					window.open(url.href, "_blank", "noopener,noreferrer");
+				} catch (error) {
+					console.warn("Frapkeys blocked an invalid external URL.", error);
+				}
 				break;
 			}
 			case "Open DocType List":

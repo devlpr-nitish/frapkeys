@@ -26,19 +26,20 @@
    "label": "Show Navbar Icon"
   },
   {
-   "default": "ctrl+shift+/",
-   "description": "Reserved for opening the shortcut dialog when keyboard registration is enabled.",
+   "default": "left_ctrl+left_shift+k",
+   "description": "Global shortcut for opening the Frapkeys modal. The default uses physical Left Control on macOS to avoid Command-key conflicts.",
    "fieldname": "open_shortcut_dialog_key",
    "fieldtype": "Data",
-   "label": "Open Shortcut Dialog Key"
+   "label": "Open Shortcut Dialog Key",
+   "reqd": 1
   },
   {
    "default": "None",
+   "description": "Select a code-backed shortcut preset. Saving applies it; deleted preset shortcuts can be restored.",
    "fieldname": "active_preset",
    "fieldtype": "Select",
    "label": "Active Preset",
-   "options": "None\nFrappe Defaults\nTally Inspired",
-   "read_only": 1
+   "options": ""
   },
   {
    "default": "1",

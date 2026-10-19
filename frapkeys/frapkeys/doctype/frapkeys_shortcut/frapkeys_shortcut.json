@@ -15,6 +15,7 @@
   "action_type",
   "target_doctype",
   "target_route",
+  "external_url",
   "target_report",
   "document_action",
   "scope_section",
@@ -60,8 +61,7 @@
   {
    "fieldname": "description",
    "fieldtype": "Small Text",
-   "label": "Description",
-   "reqd": 1
+   "label": "Description"
   },
   {
    "fieldname": "action_section",
@@ -73,7 +73,7 @@
    "fieldtype": "Select",
    "in_list_view": 1,
    "label": "Action Type",
-   "options": "Open Internal Route\nOpen DocType List\nCreate Document\nOpen Report\nRun Document Action\nFocus Global Search\nGo Home\nOpen Frapkeys Modal",
+   "options": "Open Internal Route\nOpen External Link\nOpen DocType List\nCreate Document\nOpen Report\nRun Document Action\nFocus Global Search\nGo Home\nOpen Frapkeys Modal",
    "reqd": 1
   },
   {
@@ -89,6 +89,13 @@
    "fieldname": "target_route",
    "fieldtype": "Data",
    "label": "Target Route"
+  },
+  {
+   "depends_on": "eval:doc.action_type=='Open External Link'",
+   "description": "Absolute http:// or https:// URL. Opens in a new browser tab.",
+   "fieldname": "external_url",
+   "fieldtype": "Data",
+   "label": "External URL"
   },
   {
    "depends_on": "eval:doc.action_type=='Open Report'",

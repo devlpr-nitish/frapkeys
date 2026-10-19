@@ -26,7 +26,7 @@
 			>
 				<header class="frapkeys-modal__header">
 					<div>
-						<h2 id="frapkeys-dialog-title">{{ t("Keyboard Shortcuts") }}</h2>
+						<h2 id="frapkeys-dialog-title">{{ t("Frapkeys: Keyboard Shortcuts") }}</h2>
 						<p>{{ t("Shortcuts currently available to you in Desk.") }}</p>
 					</div>
 					<button type="button" class="frapkeys-icon-button" :aria-label="t('Close')" @click="closeDialog">
@@ -42,19 +42,39 @@
 					<div v-else-if="!shortcuts.length" class="frapkeys-empty-state">
 						{{ t("No shortcuts have been configured yet.") }}
 					</div>
-					<div v-else class="frapkeys-shortcut-list">
-						<article v-for="shortcut in shortcuts" :key="shortcut.name" class="frapkeys-shortcut-row">
-							<div class="frapkeys-shortcut-copy">
-								<strong>{{ shortcut.shortcut_name }}</strong>
-								<p>{{ shortcut.description }}</p>
-							</div>
-							<div class="frapkeys-shortcut-actions">
-								<kbd>{{ formatShortcut(shortcut.key_combination) }}</kbd>
-								<button v-if="canManage" type="button" class="btn btn-xs btn-default" @click="editShortcut(shortcut)">
-									{{ t("Edit") }}
-								</button>
-							</div>
-						</article>
+					<div v-else class="frapkeys-shortcut-content">
+						<input
+							v-model.trim="searchQuery"
+							type="search"
+							class="form-control frapkeys-shortcut-search"
+							:placeholder="t('Search shortcut titles')"
+							:aria-label="t('Search shortcut titles')"
+						/>
+						<div v-if="!filteredShortcuts.length" class="frapkeys-empty-state">
+							{{ t("No shortcuts match your search.") }}
+						</div>
+						<div v-else class="frapkeys-shortcut-table-wrap">
+							<table class="frapkeys-shortcut-table">
+								<thead>
+									<tr>
+										<th scope="col">{{ t("Shortcut") }}</th>
+										<th scope="col">{{ t("Key Combination") }}</th>
+										<th v-if="canManage" scope="col" class="frapkeys-table-action">{{ t("Action") }}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="shortcut in filteredShortcuts" :key="shortcut.name">
+										<td><strong>{{ shortcut.shortcut_name }}</strong></td>
+										<td><kbd>{{ formatShortcut(shortcut.key_combination) }}</kbd></td>
+										<td v-if="canManage" class="frapkeys-table-action">
+											<button type="button" class="btn btn-xs btn-default" @click="editShortcut(shortcut)">
+												{{ t("Edit") }}
+											</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 
@@ -75,7 +95,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps({
 	initialShortcuts: { type: Array, default: () => [] },
@@ -86,7 +106,15 @@ const dialogOpen = ref(false);
 const loading = ref(false);
 const errorMessage = ref("");
 const shortcuts = ref([...props.initialShortcuts]);
+const searchQuery = ref("");
 const isMac = /Mac|iPhone|iPad|iPod/i.test(navigator.userAgentData?.platform || navigator.platform || "");
+const filteredShortcuts = computed(() => {
+	const query = searchQuery.value.toLowerCase();
+	if (!query) return shortcuts.value;
+	return shortcuts.value.filter((shortcut) =>
+		String(shortcut.shortcut_name || "").toLowerCase().includes(query)
+	);
+});
 
 const t = (message) => (window.__ ? window.__(message) : message);
 
@@ -106,10 +134,11 @@ function formatShortcut(value) {
 	};
 	return String(value || "")
 		.split("+")
-		.map((part) => {
-			return labels[part] ||
-				(part.length === 1 ? part.toUpperCase() : part[0].toUpperCase() + part.slice(1));
-		})
+		.map(
+			(part) =>
+				labels[part] ||
+				(part.length === 1 ? part.toUpperCase() : part[0].toUpperCase() + part.slice(1))
+		)
 		.join(isMac ? " " : " + ");
 }
 
@@ -132,6 +161,7 @@ async function loadShortcuts() {
 }
 
 function openDialog() {
+	searchQuery.value = "";
 	dialogOpen.value = true;
 	loadShortcuts();
 }
@@ -152,6 +182,10 @@ function manageShortcuts() {
 
 function editShortcut(shortcut) {
 	closeDialog();
+	if (shortcut.is_settings_shortcut) {
+		window.frappe?.set_route("Form", "Frapkeys Settings");
+		return;
+	}
 	window.frappe?.set_route("Form", "Frapkeys Shortcut", shortcut.name);
 }
 
