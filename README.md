@@ -15,6 +15,19 @@ bench --site your-site.local migrate
 
 Log in to Desk, open **Frapkeys Settings**, choose a preset, and start navigating faster.
 
+## Compatibility
+
+Frapkeys supports both **Frappe Framework v15** and **Frappe Framework v16**. It detects the
+active Frappe major version in Desk and adapts the navbar launcher and keyboard-shortcut modal
+to the corresponding interface.
+
+| Frappe version | Support |
+| --- | --- |
+| Version 15 | Supported |
+| Version 16 | Supported |
+
+ERPNext is optional. When used, install the ERPNext branch matching the Frappe major version.
+
 ## Description
 
 Frapkeys brings fast, configurable keyboard shortcuts to Frappe and ERPNext Desk.

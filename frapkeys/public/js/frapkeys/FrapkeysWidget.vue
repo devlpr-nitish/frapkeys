@@ -85,7 +85,7 @@
 					<div class="frapkeys-modal__footer-end">
 						<button type="button" class="btn btn-default btn-sm" @click="closeDialog">{{ t("Close") }}</button>
 						<button v-if="canManage" type="button" class="btn btn-primary btn-sm" @click="addShortcut">
-							{{ t("Add Shortcut") }}
+							{{ t("Add New") }}
 						</button>
 					</div>
 				</footer>
@@ -106,6 +106,7 @@ const dialogOpen = ref(false);
 const loading = ref(false);
 const errorMessage = ref("");
 const shortcuts = ref([...props.initialShortcuts]);
+const canManage = ref(Boolean(props.canManage));
 const searchQuery = ref("");
 const isMac = /Mac|iPhone|iPad|iPod/i.test(navigator.userAgentData?.platform || navigator.platform || "");
 const filteredShortcuts = computed(() => {
@@ -153,6 +154,7 @@ async function loadShortcuts() {
 		const result = await response.json();
 		if (!response.ok || !result.message) throw new Error(t("Unable to load shortcuts."));
 		shortcuts.value = result.message.shortcuts || [];
+		canManage.value = Boolean(result.message.can_manage);
 	} catch (error) {
 		errorMessage.value = error.message || t("Unable to load shortcuts.");
 	} finally {
@@ -195,6 +197,7 @@ function closeOnEscape(event) {
 
 function applyRefreshedShortcuts(event) {
 	shortcuts.value = event.detail?.shortcuts || [];
+	canManage.value = Boolean(event.detail?.can_manage);
 }
 
 onMounted(() => {
