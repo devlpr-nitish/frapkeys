@@ -38,6 +38,28 @@ Frapkeys brings fast, configurable keyboard shortcuts to Frappe and ERPNext Desk
 - Search and manage shortcuts from a compact navbar modal.
 - Avoid overlapping shortcuts with server-side conflict validation.
 
+## Screenshots
+
+### Keyboard shortcut modal — Frappe v15
+
+![Frapkeys keyboard shortcut modal in Frappe v15](images/modal-version-15.png)
+
+### Keyboard shortcut modal — Frappe v16
+
+![Frapkeys keyboard shortcut modal in Frappe v16](images/modal-version-16.png)
+
+### Settings
+
+![Frapkeys settings](images/settings.png)
+
+### Create or edit a shortcut
+
+![Frapkeys shortcut editor](images/shortcut-example.png)
+
+### Manage shortcuts
+
+![Frapkeys shortcut list](images/shortcuts-list.png)
+
 ## Contributing
 
 1. Fork the repository and create a feature branch.
