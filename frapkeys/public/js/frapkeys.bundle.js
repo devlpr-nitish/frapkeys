@@ -74,12 +74,12 @@ if (window.frappe?.ui?.form?.on) {
 (() => {
 	if (window.__frapkeysWidgetBooted || window.__frapkeysWidgetBooting) return;
 
-	const AWESOME_BAR_SELECTOR = ".search-bar > .awesomplete";
 	let app = null;
 	let host = null;
 	let payload = null;
 	let observer = null;
 	let shortcutsRegistered = false;
+	let frappeMajorVersion = null;
 	const activeModifierCodes = new Set();
 	const modifierTokenByCode = {
 		ControlLeft: "left_ctrl",
@@ -309,18 +309,26 @@ if (window.frappe?.ui?.form?.on) {
 		}
 	}
 
-	function mountBesideAwesomeBar() {
-		const awesomeBar = document.querySelector(AWESOME_BAR_SELECTOR);
-		if (!awesomeBar) return false;
-		awesomeBar.parentElement?.classList.add("frapkeys-mounted");
+	function getFrappeMajorVersion() {
+		if (frappeMajorVersion !== null) return frappeMajorVersion;
 
+		const version =
+			window.frappe?.boot?.versions?.frappe ||
+			window.frappe?.versions?.frappe?.version ||
+			window.frappe?.versions?.frappe ||
+			"";
+		const match = String(version).match(/^(\d+)/);
+		frappeMajorVersion = match ? Number(match[1]) : 15;
+		return frappeMajorVersion;
+	}
+
+	function ensureWidgetMounted() {
 		if (!host) {
 			host = document.createElement("div");
 			host.id = "frapkeys-widget-host";
-		}
-
-		if (host.nextElementSibling !== awesomeBar) {
-			awesomeBar.before(host);
+			host.classList.add(`frapkeys-v${getFrappeMajorVersion() >= 16 ? "16" : "15"}`);
+			host.classList.add("frapkeys-host-pending");
+			document.body.appendChild(host);
 		}
 
 		if (!app) {
@@ -332,29 +340,81 @@ if (window.frappe?.ui?.form?.on) {
 			});
 			app.mount(host);
 			window.__frapkeysWidgetBooted = true;
-			console.log("[Frapkeys] Launcher mounted before .awesomplete", host);
+			console.log(`[Frapkeys] Widget mounted for Frappe v${getFrappeMajorVersion()}`, host);
 		}
+	}
+
+	function getV16MountTarget() {
+		const currentPage = window.frappe?.container?.page;
+		const currentRoot = currentPage?.querySelector ? currentPage : document;
+		const desktopSearch = currentRoot.querySelector(".desktop-navbar .desktop-search-wrapper");
+		if (desktopSearch?.parentElement) {
+			return { parent: desktopSearch.parentElement, before: desktopSearch.nextElementSibling };
+		}
+
+		const pageActions = currentRoot.querySelector(".page-head .standard-items-section");
+		if (pageActions) return { parent: pageActions, before: pageActions.firstElementChild };
+
+		const visibleFallback = [...document.querySelectorAll(
+			".desktop-navbar .desktop-search-wrapper, .page-head .standard-items-section"
+		)].find((element) => element.getClientRects().length);
+		if (!visibleFallback) return null;
+		if (visibleFallback.matches(".desktop-search-wrapper")) {
+			return {
+				parent: visibleFallback.parentElement,
+				before: visibleFallback.nextElementSibling,
+			};
+		}
+		return { parent: visibleFallback, before: visibleFallback.firstElementChild };
+	}
+
+	function mountWidgetInNavbar() {
+		ensureWidgetMounted();
+
+		if (getFrappeMajorVersion() >= 16) {
+			const target = getV16MountTarget();
+			if (!target?.parent) return false;
+			if (
+				target.before !== host &&
+				(host.parentElement !== target.parent || host.nextElementSibling !== target.before)
+			) {
+				target.parent.insertBefore(host, target.before || null);
+			}
+			host.classList.remove("frapkeys-host-pending");
+			return true;
+		}
+
+		const awesomeBar = document.querySelector(".search-bar > .awesomplete");
+		if (!awesomeBar) return false;
+		awesomeBar.parentElement?.classList.add("frapkeys-mounted");
+		if (host.nextElementSibling !== awesomeBar) awesomeBar.before(host);
+		host.classList.remove("frapkeys-host-pending");
 
 		return true;
 	}
 
 	function watchNavbar() {
 		if (observer) return;
-		observer = new MutationObserver(mountBesideAwesomeBar);
+		observer = new MutationObserver(mountWidgetInNavbar);
 		observer.observe(document.body, { childList: true, subtree: true });
+		window.jQuery?.(document).on("page-change.frapkeys", () => {
+			window.requestAnimationFrame(mountWidgetInNavbar);
+		});
 	}
 
 	async function bootWidget() {
 		if (window.__frapkeysWidgetBooted || window.__frapkeysWidgetBooting) return;
 		window.__frapkeysWidgetBooting = true;
+		ensureWidgetMounted();
 		watchNavbar();
-		mountBesideAwesomeBar();
+		mountWidgetInNavbar();
 
 		try {
 			await refreshShortcuts();
 		} catch (error) {
 			console.warn("Frapkeys could not load its settings.", error);
 		} finally {
+			mountWidgetInNavbar();
 			window.__frapkeysWidgetBooting = false;
 		}
 	}
